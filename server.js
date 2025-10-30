@@ -42,6 +42,10 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
+// Session check endpoint
+app.get("/api/auth/check", (req, res) => {
+  res.json({ loggedIn: !!req.session?.isAuthenticated });
+});
 
 app.use(express.json());
 
@@ -50,10 +54,6 @@ app.use("/api", memoRoutes);
 app.use("/api", authRoutes);
 app.use("/api", uploadRoutes)
 
-// Session check endpoint
-app.get("/api/auth/check", (req, res) => {
-  res.json({ loggedIn: !!req.session?.isAuthenticated });
-});
 
 // Logout endpoint
 app.post("/api/logout", (req, res) => {
