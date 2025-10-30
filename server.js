@@ -63,14 +63,24 @@ app.post("/api/logout", (req, res) => {
 const startServer = async () => {
   try {
     await sequelize.authenticate();
+    console.log("✅ Database connection established");
+
     await sequelize.sync();
-    const port = process.env.PORT || 5000; // ✅ Render assigns PORT
+    console.log("✅ Models synchronized");
+
+    const port = process.env.PORT || 5000;
     app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
+      console.log(`🚀 Server running on http://localhost:${port}`);
     });
   } catch (err) {
-    console.error("Failed to start server:", err);
+    console.error("❌ Failed to start server:");
+    console.error(err.message);
+    console.error(err.stack);
+    process.exit(1); // exit so you notice the crash
   }
 };
+
+startServer();
+
 
 startServer();
