@@ -5,6 +5,7 @@ import session from "express-session";
 import { sequelize } from "./models/index.js";
 import memoRoutes from './routes/memoRoutes.js';
 import authRoutes from "./routes/authRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use(express.json());
 // Mount routes
 app.use("/api", memoRoutes);
 app.use("/api", authRoutes);
+app.use("/api", uploadRoutes)
 
 // Session check endpoint
 app.get("/api/auth/check", (req, res) => {

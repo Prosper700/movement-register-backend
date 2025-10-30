@@ -60,7 +60,7 @@ function requireAuth(req, res, next) {
 }
 
 // ✅ GET route to fetch all memos with images
-router.get("/api/memos", requireAuth, async (req, res) => {
+router.get("/memos", requireAuth, async (req, res) => {
   try {
     const memos = await Memo.findAll({
       include: { model: MemoImage, as: "images" },
@@ -75,7 +75,7 @@ router.get("/api/memos", requireAuth, async (req, res) => {
 
 // ✅ POST route to log memo with multiple images (Cloudinary)
 router.post(
-  "/api/memos",
+  "/memos",
   requireAuth,
   upload.array("memoImages", 10),
   async (req, res) => {
@@ -135,7 +135,7 @@ router.post(
 );
 
 // ✅ Download Excel file
-router.get("/api/memos/export", requireAuth, async (req, res) => {
+router.get("/memos/export", requireAuth, async (req, res) => {
   const filePath = path.join(__dirname, "../excel/memo_log.xlsx");
   res.download(filePath, "memo_log.xlsx", (err) => {
     if (err) {
