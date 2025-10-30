@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from "dotenv";
 import session from "express-session";
+import pgSession from "connect-pg-simple";
 import { sequelize } from "./models/index.js";
 import memoRoutes from './routes/memoRoutes.js';
 import authRoutes from "./routes/authRoutes.js";
@@ -13,19 +14,22 @@ const app = express();
 const isProduction = process.env.NODE_ENV === "production";
 
 // Session middleware
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "fallback_secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 6 * 60 * 60 * 1000, // 6 hours
-      httpOnly: true,
-      secure: isProduction,       // ✅ only true in production (HTTPS)
-      sameSite: isProduction ? "none" : "lax", // ✅ allow cross‑site cookies in prod
-    },
-  })
-);
+const PgSession = pgSession(session);
+
+app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL, // Render injects this automatically
+  }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 6 * 60 * 60 * 1000, // 6 hours
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  },
+}));
 
 // CORS
 app.use(
