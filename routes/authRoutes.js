@@ -6,7 +6,7 @@ const router = express.Router();
 router.post("/login", async (req, res) => { 
   try {
     const { password } = req.body;
-    onsole.log("Password from body:", password);
+    console.log("Password from body:", password);
     console.log("Hash from env:", process.env.ADMIN_PASSWORD_HASH);
     if (!password || !process.env.GENERAL_PASSWORD_HASH) {
       return res.status(400).json({ success: false, message: "Missing credentials" });
