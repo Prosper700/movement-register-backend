@@ -12,6 +12,7 @@ dotenv.config();
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
+console.log(isProduction);
 
 
 // Session middleware
