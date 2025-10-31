@@ -12,10 +12,26 @@ dotenv.config();
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
-console.log(isProduction);
+console.log("Production mode:", isProduction);
 
+// 1. Trust proxy FIRST (needed for secure cookies on Render/Cloudflare)
+app.set("trust proxy", 1);
 
-// Session middleware
+// 2. Parse JSON and URL-encoded bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 3. CORS BEFORE session
+app.use(cors({
+  origin: [
+    "http://localhost:5173", // local dev
+    "https://movement-register.onrender.com" // deployed frontend
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+}));
+
+// 4. Session middleware
 const PgSession = pgSession(session);
 
 app.use(session({
@@ -28,37 +44,20 @@ app.use(session({
   cookie: {
     maxAge: 6 * 60 * 60 * 1000, // 6 hours
     httpOnly: true,
-    secure: isProduction,
-    sameSite:isProduction? "none": "lax",
+    secure: isProduction,       // true in production (Render), false locally
+    sameSite: isProduction ? "none" : "lax",
   },
 }));
 
-// CORS
-app.use(
-  cors({
-    origin: [
-    "http://localhost:5173", // local dev
-    "https://movement-register.onrender.com" // deployed frontend
-  ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
-);
-// Session check endpoint
+// 5. Routes
 app.get("/api/auth/check", (req, res) => {
   res.json({ loggedIn: !!req.session?.isAuthenticated });
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Mount routes
 app.use("/api", memoRoutes);
 app.use("/api", authRoutes);
-app.use("/api", uploadRoutes)
+app.use("/api", uploadRoutes);
 
-
-// Logout endpoint
 app.post("/api/logout", (req, res) => {
   req.session.destroy(() => {
     res.clearCookie("connect.sid");
@@ -66,7 +65,7 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
-// Start server
+// 6. Start server
 const startServer = async () => {
   try {
     await sequelize.authenticate();
@@ -83,7 +82,7 @@ const startServer = async () => {
     console.error("❌ Failed to start server:");
     console.error(err.message);
     console.error(err.stack);
-    process.exit(1); // exit so you notice the crash
+    process.exit(1);
   }
 };
 
