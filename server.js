@@ -29,7 +29,7 @@ app.use(session({
     maxAge: 6 * 60 * 60 * 1000, // 6 hours
     httpOnly: true,
     secure: isProduction,
-    sameSite:"lax",
+    sameSite:isProduction? "none": "lax",
   },
 }));
 
