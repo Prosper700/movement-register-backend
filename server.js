@@ -50,6 +50,7 @@ app.get("/api/auth/check", (req, res) => {
 });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Mount routes
 app.use("/api", memoRoutes);
